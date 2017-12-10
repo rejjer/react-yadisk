@@ -2,8 +2,36 @@
     & {
         border: 1px solid $borderColor;
         border-radius: 4px;
+        min-height: 70vh;
+        position: relative;
     }
-    .navbar {
+
+    &::after {
+        transition: visibility 0s, opacity 0.5s ease-in-out;
+        visibility: hidden;
+        opacity: 0;
+        display: block;
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        background-image: url(/img/spinner.gif);
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    &.loading {
+        &::after {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+
+    .navbar,
+    .breadcrumb {
         margin-bottom: 0;
     }
 }

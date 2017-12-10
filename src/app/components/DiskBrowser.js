@@ -1,25 +1,23 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types'
 import cookie from 'react-cookies'
-import axios from 'axios'
 
 import {config} from '../config'
+import {diskApi} from '../api/YandexDiskApi'
 import DiskBrowserControls from './DiskBrowserControls'
 import DiskBrowserPath from './DiskBrowserPath'
 import DiskBrowserList from './DiskBrowserList'
 
 export default class DiskBrowser extends Component {
-    // static propTypes = {
-    //     accessToken: PropTypes.string()
-    // }
-    //
-    // static defaultProps = {
-    //     accessToken: ""
-    // }
-
     constructor() {
         super()
 
+        this.state = {
+            appStatus: '',
+            accessToken: '',
+            userLogin: '',
+            resourceList: [],
+            response: {}
+        }
     }
 
     componentWillMount() {
@@ -27,6 +25,7 @@ export default class DiskBrowser extends Component {
         const hash = document.location.hash
         let appStatus = 'loading'
         let accessToken
+        let userLogin = cookie.load('userLogin') || ''
 
         if (hash !== '' && /access_token=([^&]+)/.exec(hash).length >= 2) {
             accessToken = /access_token=([^&]+)/.exec(hash)[1]
@@ -38,15 +37,17 @@ export default class DiskBrowser extends Component {
         if (accessToken === '') {
             appStatus = 'logout'
         } else {
-            axios.defaults.headers.common['Authorization'] = 'OAuth ' + accessToken
-            this.loadData()
+            diskApi.setAuthHeader(accessToken)
+            this.getUserLogin()
+            this.getResourceList()
         }
 
-        this.state = {
+        this.setState({
             appStatus: appStatus,
             accessToken: accessToken,
+            userLogin: userLogin,
             response: {}
-        }
+        })
     }
 
     render() {
@@ -72,12 +73,9 @@ export default class DiskBrowser extends Component {
         return (
             <div className="container">
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
-                    <DiskBrowserControls />
+                    <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
                     <DiskBrowserPath />
-                    <DiskBrowserList>
-                        <div>{JSON.stringify(response)}</div>
-                        <button className="btn btn-info" onClick={this.logOut}>Выход</button>
-                    </DiskBrowserList>
+                    <DiskBrowserList resourceList={this.state.resourceList} />
                 </div>
             </div>
         );
@@ -119,32 +117,47 @@ export default class DiskBrowser extends Component {
     logOut = () => {
         this.setState({
             appStatus: 'logout',
-            accessToken: ''
+            accessToken: '',
+            userLogin: ''
         })
         cookie.remove('accessToken')
+        cookie.remove('userLogin')
         document.location.hash = ''
     }
 
-    loadData() {
-        axios.get(config.apiUrl + 'resources', {
-            params: {
-                path: '/',
-                fields: '_embedded.items.name,_embedded.items.type'
-            }
-        })
-        .then(response => {
-            console.log(response)
-            console.log(response.data._embedded.items)
-            this.setState({
-                appStatus: 'loaded',
-                response: response
+    getResourceList() {
+        diskApi.getResourceList()
+            .then(response => {
+                if (response.data._embedded.items.length) {
+                    this.setState({
+                        appStatus: 'loaded',
+                        resourceList: response.data._embedded.items
+                    })
+                }
             })
-        })
-        .catch(response => {
-            this.setState({
-                appStatus: 'error',
-                response: response
+            .catch(response => {
+                this.setState({
+                    appStatus: 'error',
+                    response: response
+                })
             })
-        })
+    }
+
+    getUserLogin() {
+        diskApi.getUserLogin()
+            .then(response => {
+                if (response.data.user.login) {
+                    cookie.save('userLogin', response.data.user.login)
+                    this.setState({
+                        userLogin: response.data.user.login
+                    })
+                }
+            })
+            .catch(response => {
+                this.setState({
+                    appStatus: 'error',
+                    response: response
+                })
+            })
     }
 }

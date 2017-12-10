@@ -1,0 +1,70 @@
+.list-item {
+    & {
+        transition: all 0.2s ease-in-out;
+        border-bottom: 1px solid $borderLightColor;
+        position: relative;
+        clear: both;
+        padding: 0 15px;
+    }
+
+    &:hover {
+        background-color: $itemHoverColor;
+        cursor: pointer;
+
+        & > .item-controls {
+            opacity: 1;
+        }
+    }
+
+    & > .item-icon {
+        float: left;
+        font-size: 24px;
+        padding: 6px 6px 0 0;
+
+        &.ion-ios-folder {
+            color: $folderColor;
+        }
+        &.ion-document {
+            color: $fileColor;
+            padding: 2px 10px 0 5px;
+        }
+    }
+    & > .item-name {
+        font-size: 16px;
+        padding: 10px;
+    }
+    & > .item-controls {
+        position: absolute;
+        top: 5px;
+        right: 15px;
+        opacity: 0.5;
+        transition: all 0.2s ease-in-out;
+
+        .control-icon {
+            font-size: 24px;
+            padding: 6px;
+        }
+        .ion-ios-cloud-download {
+            color: $blueColor;
+        }
+        .ion-trash-a {
+            color: $redColor;
+        }
+    }
+}
+
+@media (min-width: $screen-sm-min) {
+    .list-item {
+
+    }
+}
+@media (min-width: $screen-md-min) {
+    .list-item {
+
+    }
+}
+@media (min-width: $screen-lg-min) {
+    .list-item {
+
+    }
+}
