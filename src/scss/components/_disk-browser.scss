@@ -1,0 +1,25 @@
+.disk-browser {
+    & {
+        border: 1px solid $borderColor;
+        border-radius: 4px;
+    }
+    .navbar {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: $screen-sm-min) {
+    .disk-browser {
+
+    }
+}
+@media (min-width: $screen-md-min) {
+    .disk-browser {
+
+    }
+}
+@media (min-width: $screen-lg-min) {
+    .disk-browser {
+
+    }
+}

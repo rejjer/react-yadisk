@@ -1,0 +1,51 @@
+.browser-controls {
+    &.navbar-default {
+        background-color: transparent;
+        border: 0px;
+        border-radius: 0;
+        border-bottom: 1px solid $borderColor;
+    }
+
+    & .navbar-btn {
+        margin-right: 10px;
+    }
+
+    & .nav > li {
+        float: left;
+    }
+}
+
+
+@media (max-width: $screen-sm-min - 1) {
+    .browser-controls {
+        & .navbar-btn {
+            margin-right: 10px;
+        }
+
+        .container-fluid {
+            margin-right: 15px;
+            margin-left: 15px;
+        }
+
+        .navbar-left {
+            float: left;
+        }
+
+        .navbar-right {
+            float: right;
+
+            .navbar-btn {
+                margin-right: 0;
+            }
+        }
+    }
+}
+@media (min-width: $screen-sm-min) {
+
+}
+@media (min-width: $screen-md-min) {
+
+}
+@media (min-width: $screen-lg-min) {
+
+}

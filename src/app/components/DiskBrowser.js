@@ -4,6 +4,9 @@ import cookie from 'react-cookies'
 import axios from 'axios'
 
 import {config} from '../config'
+import DiskBrowserControls from './DiskBrowserControls'
+import DiskBrowserPath from './DiskBrowserPath'
+import DiskBrowserList from './DiskBrowserList'
 
 export default class DiskBrowser extends Component {
     // static propTypes = {
@@ -22,7 +25,7 @@ export default class DiskBrowser extends Component {
     componentWillMount() {
         console.log('componentWillMount')
         const hash = document.location.hash
-        let status = 'loading'
+        let appStatus = 'loading'
         let accessToken
 
         if (hash !== '' && /access_token=([^&]+)/.exec(hash).length >= 2) {
@@ -33,14 +36,14 @@ export default class DiskBrowser extends Component {
         }
 
         if (accessToken === '') {
-            status = 'logout'
+            appStatus = 'logout'
         } else {
             axios.defaults.headers.common['Authorization'] = 'OAuth ' + accessToken
             this.loadData()
         }
 
         this.state = {
-            status: status,
+            appStatus: appStatus,
             accessToken: accessToken,
             response: {}
         }
@@ -48,10 +51,10 @@ export default class DiskBrowser extends Component {
 
     render() {
         console.log('render')
-        const {status, accessToken} = this.state
+        const {appStatus, accessToken} = this.state
 
-        switch (status) {
-            case 'loading': return this.showLoader()
+        switch (appStatus) {
+            case 'loading': return this.showDiskBrowser('loading')
             case 'logout': return this.showAuth()
             case 'loaded': return this.showDiskBrowser()
             default: return this.showError()
@@ -63,14 +66,18 @@ export default class DiskBrowser extends Component {
 
     }
 
-    showDiskBrowser() {
+    showDiskBrowser(loadingStatus) {
         const response = this.state.response
 
         return (
-            <div className="container text-center">
-                <div className="jumbotron">
-                    <div>{JSON.stringify(response)}</div>
-                    <button className="btn btn-info" onClick={this.logOut}>Выход</button>
+            <div className="container">
+                <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
+                    <DiskBrowserControls />
+                    <DiskBrowserPath />
+                    <DiskBrowserList>
+                        <div>{JSON.stringify(response)}</div>
+                        <button className="btn btn-info" onClick={this.logOut}>Выход</button>
+                    </DiskBrowserList>
                 </div>
             </div>
         );
@@ -111,7 +118,7 @@ export default class DiskBrowser extends Component {
 
     logOut = () => {
         this.setState({
-            status: 'logout',
+            appStatus: 'logout',
             accessToken: ''
         })
         cookie.remove('accessToken')
@@ -119,18 +126,25 @@ export default class DiskBrowser extends Component {
     }
 
     loadData() {
-        axios.get(config.apiUrl)
-            .then(response => {
-                this.setState({
-                    status: 'loaded',
-                    response: response
-                })
+        axios.get(config.apiUrl + 'resources', {
+            params: {
+                path: '/',
+                fields: '_embedded.items.name,_embedded.items.type'
+            }
+        })
+        .then(response => {
+            console.log(response)
+            console.log(response.data._embedded.items)
+            this.setState({
+                appStatus: 'loaded',
+                response: response
             })
-            .catch(response => {
-                this.setState({
-                    status: 'error',
-                    response: response
-                })
+        })
+        .catch(response => {
+            this.setState({
+                appStatus: 'error',
+                response: response
             })
+        })
     }
 }
