@@ -75,7 +75,7 @@ export default class DiskBrowser extends Component {
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
                     <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
                     <DiskBrowserPath />
-                    <DiskBrowserList resourceList={this.state.resourceList} />
+                    <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} />
                 </div>
             </div>
         );
@@ -153,11 +153,14 @@ export default class DiskBrowser extends Component {
                     })
                 }
             })
-            .catch(response => {
-                this.setState({
-                    appStatus: 'error',
-                    response: response
-                })
+    }
+
+    downloadFile(path) {
+        diskApi.getDownloadUrl(path)
+            .then(response => {
+                if (response.data.href) {
+                    window.location = response.data.href
+                }
             })
     }
 }

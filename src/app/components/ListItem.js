@@ -5,7 +5,8 @@ export default class ListItem extends Component {
     static propTypes = {
         itemType: PropTypes.string.isRequired,
         itemName: PropTypes.string.isRequired,
-        itemPath: PropTypes.string
+        itemPath: PropTypes.string,
+        downloadFile: PropTypes.func
     }
 
     static defaultProps = {
@@ -22,11 +23,15 @@ export default class ListItem extends Component {
                     {this.props.itemName}
                 </div>
                 <div className="item-controls">
-                    {this.props.itemType !== 'dir' ? <span className="control-icon ion-ios-cloud-download"></span> : ''}
+                    {this.props.itemType !== 'dir' ? <span className="control-icon ion-ios-cloud-download" onClick={this.downloadFileClick}></span> : ''}
                     <span className="control-icon ion-trash-a"></span>
                 </div>
             </div>
         )
+    }
+
+    downloadFileClick = () => {
+        this.props.downloadFile(this.props.itemPath)
     }
 
 }

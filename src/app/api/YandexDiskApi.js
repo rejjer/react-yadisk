@@ -24,6 +24,15 @@ function YandexDiskApi() {
             }
         })
     }
+
+    this.getDownloadUrl = function (path) {
+        return axios.get(config.apiUrl + 'resources/download', {
+            params: {
+                path: path,
+                fields: 'href'
+            }
+        })
+    }
 }
 
 export const diskApi = new YandexDiskApi()
