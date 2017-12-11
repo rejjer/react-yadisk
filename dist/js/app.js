@@ -15632,6 +15632,14 @@ function YandexDiskApi() {
             }
         });
     };
+
+    this.deleteResource = function (path) {
+        return _axios2.default.delete(_config.config.apiUrl + 'resources', {
+            params: {
+                path: path
+            }
+        });
+    };
 }
 
 var diskApi = exports.diskApi = new YandexDiskApi();
@@ -15796,7 +15804,7 @@ var DiskBrowser = _wrapComponent('DiskBrowser')(function (_Component) {
                 appStatus: 'loading'
             });
             _YandexDiskApi.diskApi.getResourceList(path).then(function (response) {
-                if (response.data._embedded.items.length) {
+                if (response.data._embedded.items) {
                     _this.setState({
                         appStatus: 'loaded',
                         resourceList: response.data._embedded.items,
@@ -15808,6 +15816,15 @@ var DiskBrowser = _wrapComponent('DiskBrowser')(function (_Component) {
                     appStatus: 'error',
                     response: response
                 });
+            });
+        };
+
+        _this.deleteResource = function (path) {
+            _this.setState({
+                appStatus: 'loading'
+            });
+            _YandexDiskApi.diskApi.deleteResource(path).then(function (response) {
+                _this.getResourceList(_this.state.diskPath);
             });
         };
 
@@ -15885,7 +15902,7 @@ var DiskBrowser = _wrapComponent('DiskBrowser')(function (_Component) {
                     { className: 'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '') },
                     _react3.default.createElement(_DiskBrowserControls2.default, { logOut: this.logOut, userLogin: this.state.userLogin }),
                     _react3.default.createElement(_DiskBrowserPath2.default, { diskPath: this.state.diskPath, changeFolderHandler: this.getResourceList }),
-                    _react3.default.createElement(_DiskBrowserList2.default, { resourceList: this.state.resourceList, downloadFileHandler: this.downloadFile, changeFolderHandler: this.getResourceList })
+                    _react3.default.createElement(_DiskBrowserList2.default, { resourceList: this.state.resourceList, downloadFileHandler: this.downloadFile, deleteResourceHandler: this.deleteResource, changeFolderHandler: this.getResourceList })
                 )
             );
         }
@@ -16147,9 +16164,9 @@ var DiskBrowserList = _wrapComponent('DiskBrowserList')((_temp = _class = functi
 
             return _react3.default.createElement(
                 'div',
-                { className: 'browser-list' },
+                { className: 'browser-list' + (this.props.resourceList.length === 0 ? ' empty' : '') },
                 this.props.resourceList.map(function (item) {
-                    return _react3.default.createElement(_ListItem2.default, { key: item.resource_id, itemType: item.type, itemName: item.name, itemPath: item.path, downloadFile: _this2.props.downloadFileHandler, changeFolder: _this2.props.changeFolderHandler });
+                    return _react3.default.createElement(_ListItem2.default, { key: item.resource_id, itemType: item.type, itemName: item.name, itemPath: item.path, downloadFile: _this2.props.downloadFileHandler, deleteResource: _this2.props.deleteResourceHandler, changeFolder: _this2.props.changeFolderHandler });
                 })
             );
         }
@@ -16164,6 +16181,7 @@ var DiskBrowserList = _wrapComponent('DiskBrowserList')((_temp = _class = functi
         type: _propTypes2.default.string.isRequired
     })),
     downloadFileHandler: _propTypes2.default.func,
+    deleteResourceHandler: _propTypes2.default.func,
     changeFolderHandler: _propTypes2.default.func
 }, _temp));
 
@@ -16435,6 +16453,8 @@ var ListItem = _wrapComponent('ListItem')((_temp2 = _class = function (_Componen
 
         return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ListItem.__proto__ || Object.getPrototypeOf(ListItem)).call.apply(_ref, [this].concat(args))), _this), _this.downloadFileClick = function () {
             _this.props.downloadFile(_this.props.itemPath);
+        }, _this.deleteResourceClick = function () {
+            _this.props.deleteResource(_this.props.itemPath);
         }, _this.folderClick = function () {
             _this.props.changeFolder(_this.props.itemPath.replace('disk:', ''));
         }, _temp), _possibleConstructorReturn(_this, _ret);
@@ -16445,23 +16465,23 @@ var ListItem = _wrapComponent('ListItem')((_temp2 = _class = function (_Componen
         value: function render() {
             if (this.props.itemType === 'dir') {
                 return _react3.default.createElement(
-                    'a',
-                    { href: '#/' + this.props.itemPath.replace(':', '') + '/', onClick: this.folderClick },
+                    'div',
+                    { className: 'list-item' },
                     _react3.default.createElement(
-                        'div',
-                        { className: 'list-item' },
+                        'a',
+                        { href: '#/' + this.props.itemPath.replace(':', '') + '/', onClick: this.folderClick },
                         _react3.default.createElement('span', { className: 'item-icon ion-ios-folder' }),
                         _react3.default.createElement(
                             'div',
                             { className: 'item-name' },
                             this.props.itemName
-                        ),
-                        _react3.default.createElement(
-                            'div',
-                            { className: 'item-controls' },
-                            _react3.default.createElement('span', { className: 'control-icon ion-archive', onClick: this.downloadFileClick }),
-                            _react3.default.createElement('span', { className: 'control-icon ion-trash-a' })
                         )
+                    ),
+                    _react3.default.createElement(
+                        'div',
+                        { className: 'item-controls' },
+                        _react3.default.createElement('span', { className: 'control-icon ion-archive', onClick: this.downloadFileClick }),
+                        _react3.default.createElement('span', { className: 'control-icon ion-trash-a', onClick: this.deleteResourceClick })
                     )
                 );
             } else {
@@ -16478,7 +16498,7 @@ var ListItem = _wrapComponent('ListItem')((_temp2 = _class = function (_Componen
                         'div',
                         { className: 'item-controls' },
                         _react3.default.createElement('span', { className: 'control-icon ion-ios-cloud-download', onClick: this.downloadFileClick }),
-                        _react3.default.createElement('span', { className: 'control-icon ion-trash-a' })
+                        _react3.default.createElement('span', { className: 'control-icon ion-trash-a', onClick: this.deleteResourceClick })
                     )
                 );
             }
@@ -16491,6 +16511,7 @@ var ListItem = _wrapComponent('ListItem')((_temp2 = _class = function (_Componen
     itemName: _propTypes2.default.string.isRequired,
     itemPath: _propTypes2.default.string,
     downloadFile: _propTypes2.default.func,
+    deleteResource: _propTypes2.default.func,
     changeFolder: _propTypes2.default.func
 }, _class.defaultProps = {
     itemType: "file",

@@ -71,7 +71,7 @@ export default class DiskBrowser extends Component {
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
                     <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
                     <DiskBrowserPath diskPath={this.state.diskPath} changeFolderHandler={this.getResourceList}/>
-                    <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} changeFolderHandler={this.getResourceList}/>
+                    <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} deleteResourceHandler={this.deleteResource} changeFolderHandler={this.getResourceList}/>
                 </div>
             </div>
         );
@@ -94,7 +94,7 @@ export default class DiskBrowser extends Component {
         })
         diskApi.getResourceList(path)
             .then(response => {
-                if (response.data._embedded.items.length) {
+                if (response.data._embedded.items) {
                     this.setState({
                         appStatus: 'loaded',
                         resourceList: response.data._embedded.items,
@@ -107,6 +107,16 @@ export default class DiskBrowser extends Component {
                     appStatus: 'error',
                     response: response
                 })
+            })
+    }
+
+    deleteResource = (path) => {
+        this.setState({
+            appStatus: 'loading',
+        })
+        diskApi.deleteResource(path)
+            .then(response => {
+                this.getResourceList(this.state.diskPath)
             })
     }
 

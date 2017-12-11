@@ -39,6 +39,14 @@ function YandexDiskApi() {
             }
         })
     }
+
+    this.deleteResource = function (path) {
+        return axios.delete(config.apiUrl + 'resources', {
+            params: {
+                path: path
+            }
+        })
+    }
 }
 
 export const diskApi = new YandexDiskApi()

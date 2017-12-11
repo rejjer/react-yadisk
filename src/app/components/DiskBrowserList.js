@@ -12,14 +12,15 @@ export default class DiskBrowserList extends Component {
             type: PropTypes.string.isRequired
         })),
         downloadFileHandler: PropTypes.func,
+        deleteResourceHandler: PropTypes.func,
         changeFolderHandler: PropTypes.func
     }
 
     render() {
         return (
-            <div className="browser-list">
+            <div className={'browser-list' + (this.props.resourceList.length === 0 ? ' empty' : '' )}>
                 {this.props.resourceList.map(item =>
-                    <ListItem key={item.resource_id} itemType={item.type} itemName={item.name} itemPath={item.path} downloadFile={this.props.downloadFileHandler} changeFolder={this.props.changeFolderHandler}/>
+                    <ListItem key={item.resource_id} itemType={item.type} itemName={item.name} itemPath={item.path} downloadFile={this.props.downloadFileHandler} deleteResource={this.props.deleteResourceHandler} changeFolder={this.props.changeFolderHandler}/>
                 )}
             </div>
         )

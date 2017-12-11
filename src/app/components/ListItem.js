@@ -8,6 +8,7 @@ export default class ListItem extends Component {
         itemName: PropTypes.string.isRequired,
         itemPath: PropTypes.string,
         downloadFile: PropTypes.func,
+        deleteResource: PropTypes.func,
         changeFolder: PropTypes.func
     }
 
@@ -20,18 +21,18 @@ export default class ListItem extends Component {
     render() {
         if (this.props.itemType === 'dir') {
             return (
-                <a href={'#/' + this.props.itemPath.replace(':', '') + '/'} onClick={this.folderClick}>
-                    <div className="list-item">
+                <div className="list-item">
+                    <a href={'#/' + this.props.itemPath.replace(':', '') + '/'} onClick={this.folderClick}>
                         <span className="item-icon ion-ios-folder"></span>
                         <div className="item-name">
                             {this.props.itemName}
                         </div>
-                        <div className="item-controls">
-                            <span className="control-icon ion-archive" onClick={this.downloadFileClick}></span>
-                            <span className="control-icon ion-trash-a"></span>
-                        </div>
+                    </a>
+                    <div className="item-controls">
+                        <span className="control-icon ion-archive" onClick={this.downloadFileClick}></span>
+                        <span className="control-icon ion-trash-a" onClick={this.deleteResourceClick}></span>
                     </div>
-                </a>
+                </div>
             )
         } else {
             return (
@@ -42,7 +43,7 @@ export default class ListItem extends Component {
                     </div>
                     <div className="item-controls">
                         <span className="control-icon ion-ios-cloud-download" onClick={this.downloadFileClick}></span>
-                        <span className="control-icon ion-trash-a"></span>
+                        <span className="control-icon ion-trash-a" onClick={this.deleteResourceClick}></span>
                     </div>
                 </div>
             )
@@ -51,6 +52,10 @@ export default class ListItem extends Component {
 
     downloadFileClick = () => {
         this.props.downloadFile(this.props.itemPath)
+    }
+
+    deleteResourceClick = () => {
+        this.props.deleteResource(this.props.itemPath)
     }
 
     folderClick = () => {
