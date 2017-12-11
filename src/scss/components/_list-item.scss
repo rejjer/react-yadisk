@@ -5,6 +5,7 @@
         position: relative;
         clear: both;
         padding: 0 15px;
+        color: #333;
     }
 
     &:hover {
@@ -44,7 +45,8 @@
             font-size: 24px;
             padding: 6px;
         }
-        .ion-ios-cloud-download {
+        .ion-ios-cloud-download,
+        .ion-archive {
             color: $blueColor;
         }
         .ion-trash-a {

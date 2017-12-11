@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import cookie from 'react-cookies'
 import {Redirect} from 'react-router-dom';
 
-import {config} from '../config'
 import {diskApi} from '../api/YandexDiskApi'
 import DiskBrowserControls from './DiskBrowserControls'
 import DiskBrowserPath from './DiskBrowserPath'
@@ -17,6 +16,7 @@ export default class DiskBrowser extends Component {
             accessToken: '',
             userLogin: '',
             resourceList: [],
+            diskPath: '',
             response: {}
         }
     }
@@ -25,19 +25,26 @@ export default class DiskBrowser extends Component {
         let appStatus = 'loading'
         let accessToken = cookie.load('accessToken') || ''
         let userLogin = cookie.load('userLogin') || ''
+        let diskPath = ''
+        const urlParams = this.props.match.params[0]
+
+        if (urlParams !=='' && urlParams !=='/') {
+            diskPath = urlParams
+        }
 
         if (accessToken === '') {
             appStatus = 'logout'
         } else {
             diskApi.setAuthHeader(accessToken)
             this.getUserLogin()
-            this.getResourceList()
+            this.getResourceList(diskPath)
         }
 
         this.setState({
             appStatus: appStatus,
             accessToken: accessToken,
             userLogin: userLogin,
+            diskPath: diskPath,
             response: {}
         })
     }
@@ -46,13 +53,13 @@ export default class DiskBrowser extends Component {
         const {appStatus, accessToken} = this.state
 
         if (this.state.appStatus === 'logout') {
-            return <Redirect to='/auth'/>
+            return <Redirect to='/'/>
         }
 
         switch (appStatus) {
             case 'loading': return this.showDiskBrowser('loading')
             case 'loaded': return this.showDiskBrowser()
-            default: return <Redirect to='/auth'/>
+            default: return <Redirect to='/'/>
         }
     }
 
@@ -64,7 +71,7 @@ export default class DiskBrowser extends Component {
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
                     <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
                     <DiskBrowserPath />
-                    <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} />
+                    <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} changeFolderHandler={this.getResourceList}/>
                 </div>
             </div>
         );
@@ -80,8 +87,12 @@ export default class DiskBrowser extends Component {
         cookie.remove('userLogin')
     }
 
-    getResourceList() {
-        diskApi.getResourceList()
+
+    getResourceList = (path) => {
+        this.setState({
+            appStatus: 'loading',
+        })
+        diskApi.getResourceList(path)
             .then(response => {
                 if (response.data._embedded.items.length) {
                     this.setState({

@@ -16,10 +16,16 @@ function YandexDiskApi() {
         })
     }
 
-    this.getResourceList = function () {
+    this.getResourceList = function (path) {
+        let requestPath
+        if (path === '' || path === '/disk') {
+            requestPath = '/'
+        } else {
+            requestPath = path
+        }
         return axios.get(config.apiUrl + 'resources', {
             params: {
-                path: '/',
+                path: requestPath,
                 fields: '_embedded.items.name,_embedded.items.type,_embedded.items.path,_embedded.items.resource_id'
             }
         })
