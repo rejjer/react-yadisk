@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import cookie from 'react-cookies'
+import {Redirect} from 'react-router-dom';
 
 import {config} from '../config'
 import {diskApi} from '../api/YandexDiskApi'
@@ -21,18 +22,9 @@ export default class DiskBrowser extends Component {
     }
 
     componentWillMount() {
-        console.log('componentWillMount')
-        const hash = document.location.hash
         let appStatus = 'loading'
-        let accessToken
+        let accessToken = cookie.load('accessToken') || ''
         let userLogin = cookie.load('userLogin') || ''
-
-        if (hash !== '' && /access_token=([^&]+)/.exec(hash).length >= 2) {
-            accessToken = /access_token=([^&]+)/.exec(hash)[1]
-            cookie.save('accessToken', accessToken)
-        } else {
-            accessToken = cookie.load('accessToken') || ''
-        }
 
         if (accessToken === '') {
             appStatus = 'logout'
@@ -51,20 +43,17 @@ export default class DiskBrowser extends Component {
     }
 
     render() {
-        console.log('render')
         const {appStatus, accessToken} = this.state
+
+        if (this.state.appStatus === 'logout') {
+            return <Redirect to='/auth'/>
+        }
 
         switch (appStatus) {
             case 'loading': return this.showDiskBrowser('loading')
-            case 'logout': return this.showAuth()
             case 'loaded': return this.showDiskBrowser()
-            default: return this.showError()
+            default: return <Redirect to='/auth'/>
         }
-    }
-
-    componentDidMount() {
-        console.log('componentDidMount')
-
     }
 
     showDiskBrowser(loadingStatus) {
@@ -81,39 +70,6 @@ export default class DiskBrowser extends Component {
         );
     }
 
-    showAuth() {
-        return (
-            <div className="container text-center">
-                <div className="jumbotron">
-                    <p>Для работы приложения нобходим токен авторизации</p>
-                    <a className="btn btn-success" href={config.oAuthUrl + config.appId}>Продолжить</a>
-                </div>
-            </div>
-        );
-    }
-
-    showLoader() {
-        return (
-            <div className="container text-center">
-                <div className="jumbotron">
-                    <p>Загрузка...</p>
-                    <button className="btn btn-info" onClick={this.logOut}>Выход</button>
-                </div>
-            </div>
-        );
-    }
-
-    showError() {
-        return (
-            <div className="container text-center">
-                <div className="jumbotron text-danger">
-                    <p>Произошла какая-то ошибка</p>
-                    <p>{JSON.stringify(response)}</p>
-                </div>
-            </div>
-        );
-    }
-
     logOut = () => {
         this.setState({
             appStatus: 'logout',
@@ -122,7 +78,6 @@ export default class DiskBrowser extends Component {
         })
         cookie.remove('accessToken')
         cookie.remove('userLogin')
-        document.location.hash = ''
     }
 
     getResourceList() {
