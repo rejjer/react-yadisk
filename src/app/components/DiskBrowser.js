@@ -69,7 +69,7 @@ export default class DiskBrowser extends Component {
         return (
             <div className="container">
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
-                    <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
+                    <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin} addFolderHandler={this.addFolder} />
                     <DiskBrowserPath diskPath={this.state.diskPath} changeFolderHandler={this.getResourceList}/>
                     <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} deleteResourceHandler={this.deleteResource} changeFolderHandler={this.getResourceList}/>
                 </div>
@@ -118,6 +118,29 @@ export default class DiskBrowser extends Component {
             .then(response => {
                 this.getResourceList(this.state.diskPath)
             })
+            .catch(this.setState({appStatus: 'loaded'}))
+    }
+
+    addFolder = (folder) => {
+        let path = this.state.diskPath
+        if (path) {
+            if (path[path.length - 1] === '/') {
+                path = path + folder
+            } else {
+                path = path + '/' + folder
+            }
+        } else {
+            path = '/' + folder
+        }
+        this.setState({
+            appStatus: 'loading',
+        })
+        diskApi.addFolder(path, this.state.accessToken)
+            .then(response => {
+                console.log(response)
+                this.getResourceList(this.state.diskPath)
+            })
+            .catch(this.setState({appStatus: 'loaded'}))
     }
 
     getUserLogin() {

@@ -40,6 +40,10 @@ function YandexDiskApi() {
         })
     }
 
+    this.addFolder = function (path, accessToken) {
+        return axios.put(config.apiUrl + 'resources?path=' + path)
+    }
+
     this.deleteResource = function (path) {
         return axios.delete(config.apiUrl + 'resources', {
             params: {
