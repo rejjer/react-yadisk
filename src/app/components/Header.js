@@ -5,7 +5,7 @@ export default function Header() {
         <div className="navbar navbar-default navbar-fixed-top" role="navigation">
             <div className="container">
                 <div className="navbar-header">
-                    <a className="navbar-brand" href="#">YaDisk React client</a>
+                    <a className="navbar-brand" href="/#/disk">YaDisk React client</a>
                 </div>
             </div>
         </div>

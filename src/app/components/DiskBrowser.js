@@ -70,7 +70,7 @@ export default class DiskBrowser extends Component {
             <div className="container">
                 <div className={'disk-browser' + (loadingStatus === 'loading' ? ' loading' : '')}>
                     <DiskBrowserControls logOut={this.logOut} userLogin={this.state.userLogin}/>
-                    <DiskBrowserPath />
+                    <DiskBrowserPath diskPath={this.state.diskPath} changeFolderHandler={this.getResourceList}/>
                     <DiskBrowserList resourceList={this.state.resourceList} downloadFileHandler={this.downloadFile} changeFolderHandler={this.getResourceList}/>
                 </div>
             </div>
@@ -97,7 +97,8 @@ export default class DiskBrowser extends Component {
                 if (response.data._embedded.items.length) {
                     this.setState({
                         appStatus: 'loaded',
-                        resourceList: response.data._embedded.items
+                        resourceList: response.data._embedded.items,
+                        diskPath: path
                     })
                 }
             })
